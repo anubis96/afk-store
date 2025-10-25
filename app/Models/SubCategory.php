@@ -4,9 +4,44 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class SubCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\SubCategoryFactory> */
-    use HasFactory;
+    protected $fillable = [
+        'name',
+        'slug',
+        'category_id',
+    ];
+
+    /**
+     * Set slug automatically
+     */
+    public function setNameAttribute($value) : void
+    {
+        $this->attributes['name'] = $value;
+        $this->attributes['slug'] = Str::slug($value);
+    }
+
+    public function category() : BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function childcategories() : HasMany
+    {
+        return $this->hasMany(Childcategory::class)->has('products');
+    }
+
+    public function products() : HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function getRouteKeyName() : string
+    {
+        return 'slug';
+    }
 }
