@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthAdminRequest;
 use App\Models\Order;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -25,7 +27,7 @@ class AdminController extends Controller
         return view('admin.login');
     }
 
-    public function auth(Object $request) : RedirectResponse
+    public function auth(AuthAdminRequest $request) : RedirectResponse
     {
         if(auth()->guard('admin')->attempt($request->validated())) {
             $request->session()->regenerate();
@@ -35,5 +37,12 @@ class AdminController extends Controller
                 'email' => 'These credentials do not match our records.'
             ])->onlyInput('email');
         }
+    }
+    public function logout(Request $request) : RedirectResponse
+    {
+        auth()->guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return to_route('admin.login');
     }
 }
